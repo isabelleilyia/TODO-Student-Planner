@@ -26,8 +26,7 @@ The other files are standard and weren't modified much.
 for this reason, the JS and CSS are written in the same document as the HTML, although this isn't best
 practice*
 
-I believe that my final project satisfies the complexity requirements as it provides many different
-functionalities a student may find useful, including:
+This student planner provides many different functionalities a student may find useful, including:
 - creating a project and giving it relevant information such as name, class, due date, and being able
 to view its completion status
 - at the top of the details dashboard, being able to view relevant information quickly, including the 
