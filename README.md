@@ -1,6 +1,6 @@
 # TODO Student Planner
 
-https://youtu.be/yMgb-5tzulw
+Video of product: https://youtu.be/yMgb-5tzulw
   
 ToDo is a student planner created to organize all the work, research, and tasks associated 
 with any project in a single dashboard. It is meant to address inconveniences such as having
