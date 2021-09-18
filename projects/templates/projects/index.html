@@ -1,0 +1,145 @@
+{% extends "projects/layout.html" %}
+{% block title %}My Projects{% endblock %}
+{% block style%}
+<style>
+    .page {
+        padding:15px;
+    }
+    
+</style>
+{% endblock %}
+{% block body %}
+<div class="page table-responsive">
+    <table class="table table-hover table-striped" id="project_table">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">Project</th>
+            <th scope="col" >Class</th>
+            <th scope="col" >Due Date</th>
+            <th scope="col" >Status</th>
+            <th><button id="add" class="btn btn-outline-light" style="float:right;font-size:large;">+</button></th>
+        </tr>
+        </thead>
+        <tbody id="table_body">
+            <tr id="new_project" style="display:none">
+                <form onsubmit="return false">
+                    {% csrf_token %}
+                    <th scope="row"><input class="form-control" placeholder="Project Name" id="name" type="Text"></th>
+                    <td><input placeholder="Class" class="form-control" type="text" id="class"></td>
+                    <td><input class="form-control" type="date" id="due"></td>
+                    <td colspan="2">
+                        <button id="cancel" style="float:right; margin-left:7px;" class="btn btn-outline-dark">Cancel</button>
+                        <button id="submit-create" style="float:right;" onclick="submit_create()" class="btn btn-dark">Create</button>
+                    </td>
+                    
+
+                </form>
+            </tr>
+
+            {% for project in projects %}
+            
+        <tr data-status="{{ project.status }}" class="entry">
+            <th scope="row" data-id="{{ project.id }}">{{ project.project_name }}</th>
+            <td>{{ project.project_class }}</td>
+            <td>{{ project.due_date }}</td>
+            <td colspan="2">{{ project.status }}</td>
+        </tr>
+            {% empty %}
+            <tr id="empty"><td colspan="5" style="text-align:center;">You have no open projects.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button style="float:right;" onclick="show_completed()" class="btn btn-outline-dark">Show Completed</button>
+
+</div>
+<script>
+    addEventListener("DOMContentLoaded", ()=> {
+        document.querySelector("#add").onclick = add_form;
+        document.querySelector("#cancel").onclick = hide_form;
+        document.querySelectorAll(".entry").forEach(element => {
+            const id = element.firstElementChild.dataset.id;
+            if(element.dataset.status == "Complete") {
+                element.style.display = "none";
+            }
+            element.onclick = () => {
+                window.location.href = "/details/"+id;
+
+            }
+
+        })
+    })
+    function add_form() {
+        
+        document.querySelector("#new_project").style.display= "table-row";
+        if(document.querySelector("#empty")) {
+            document.querySelector("#empty").style.display = "none";
+        }
+        document.querySelector("#add").style.opacity="0";
+        project_name = document.querySelector("#name").value = "";
+        project_class = document.querySelector("#class").value = "";
+        due_date = document.querySelector("#due").value = "";
+    }
+    function submit_create() {
+        var new_id = "";
+        document.querySelector("#add").style.opacity="100";
+        project_name = document.querySelector("#name").value;
+        project_class = document.querySelector("#class").value;
+        due_date = document.querySelector("#due").value;
+        fetch("/create", {
+        method: 'POST',
+        body: JSON.stringify({
+            name: project_name,
+            class: project_class,
+            due: due_date
+        })
+        })
+        .then(response => response.json())
+        .then(response => {
+            console.log(response);
+            new_id = response["id"];
+            var row = document.createElement("tr")
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+            var cell4 = row.insertCell(3);
+            row.onclick = function() {
+                window.location.href = "/details/"+new_id;
+            };
+            cell1.setAttribute("data-id", new_id);
+            cell1.innerHTML = project_name;
+            cell1.style.fontWeight = "bold";
+            cell2.innerHTML = project_class;
+            cell3.innerHTML = due_date;
+            cell4.setAttribute("colspan", 2)
+            cell4.innerHTML = "Incomplete";
+            row.style.backgroundColor = "white";
+            document.querySelector("#table_body").insertBefore(row, document.querySelector("#new_project").nextElementSibling)
+            document.querySelector("#new_project").style.display= "none";
+            return false;
+        });
+    }
+    function hide_form() {
+        document.querySelector("#new_project").style.display= "none";
+        document.querySelector("#add").style.opacity="100";
+        return false;
+    }
+    function show_completed() {
+        if(event.target.innerHTML == "Show Completed") {
+            document.querySelectorAll(".entry").forEach(element => {
+                if(element.dataset.status == "Complete") {
+                    element.style.display = "table-row";
+                }
+            })    
+            event.target.innerHTML = "Hide Completed"
+        } else {
+            document.querySelectorAll(".entry").forEach(element => {
+                if(element.dataset.status == "Complete") {
+                    element.style.display = "none";
+                }
+            })    
+            event.target.innerHTML = "Show Completed"
+        }
+    }
+    
+</script>
+{% endblock %}
